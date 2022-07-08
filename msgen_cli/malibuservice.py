@@ -8,11 +8,11 @@ from time import sleep
 try:
     import requests
 except ImportError:
-    print """You need to install the 'requests' library.
-            Try: pip install requests"""
+    print("""You need to install the 'requests' library.
+            Try: pip install requests""")
     sys.exit(code=1)
 from requests.structures import CaseInsensitiveDict
-from malibucommon import ORDER_ASC
+from . import malibucommon
 
 def retry_policy(max_tries=45, start_delay=2, backoff_base=2, max_exp=5):
     """
@@ -45,15 +45,15 @@ def retry_policy(max_tries=45, start_delay=2, backoff_base=2, max_exp=5):
                     #handling 429 specifically, APIM returns this code when throttling takes place
                     if response_code < 500 and response_code != 403 and response_code != 429:
                         return res
-                    print "Response: {0}".format(response_code)
+                    print("Response: {0}".format(response_code))
                 except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
                     if not retry:
                         raise
-                    print "Error: {0}".format(str(exc))
+                    print("Error: {0}".format(str(exc)))
                 if retry:
-                    print "Retrying in {0}s, {1} of {2} retries ".format(str(waitfor),
+                    print("Retrying in {0}s, {1} of {2} retries ".format(str(waitfor),
                                                                          str(tries+1),
-                                                                         str(max_tries))
+                                                                         str(max_tries)))
                     sleep(waitfor)
                 if tries < max_exp:
                     waitfor = waitfor * backoff_base
@@ -185,7 +185,7 @@ class MalibuService(object):
                 odata_args["$top"] = in_range.top
         else:
              # by default output oldest -> most recent
-            odata_args["$orderby"] = "CreatedDate " + ORDER_ASC
+            odata_args["$orderby"] = "CreatedDate " + malibucommon.ORDER_ASC
         filters = []
         if with_description is not None:
             filters.append("substringof('{0}', Description)".format(with_description))

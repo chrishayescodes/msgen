@@ -114,7 +114,7 @@ class MalibuServiceTest(unittest.TestCase):
 
         response_code, workflow = self.service.get_workflow_status(workflow["Id"])
 
-        print "--> {0} {1}".format(workflow["Status"], workflow["Message"])
+        print("--> {0} {1}".format(workflow["Status"], workflow["Message"]))
 
         self.assertTrue(response_code == 200)
 

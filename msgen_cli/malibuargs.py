@@ -7,7 +7,7 @@ import re
 import sys
 from collections import namedtuple
 
-import malibuargsactions
+from . import malibuargsactions
 
 PACKAGE_NAME = "msgen"
 PROGRAM_NAME = "msgen"
@@ -25,11 +25,11 @@ access_key   : <access key>
 
 Note that values provided in the command line override values provided in the
 configuration file."""
-    print "usage:" + _usage
-    print
-    print description
-    print
-    print common_arguments
+    print("usage:" + _usage)
+    print()
+    print(description)
+    print()
+    print(common_arguments)
 
 def parse(argv, submit_func, list_func, cancel_func, status_func, help_func):
     """Parse provided arguments and return the result"""
@@ -108,7 +108,7 @@ class ArgsOutput(object):
 
     def fill(self, args):
         """Fills the object properties with the parsed argument values."""
-        for key, value in vars(args).iteritems():
+        for key, value in vars(args).items():
             self.__set_args_value(key, value)
 
     def get_storage_accounts_info(self):

@@ -7,17 +7,16 @@
 
 import sys
 from datetime import datetime
-import malibuworkflow
-import malibuargs
+from . import malibuworkflow, malibuargs
 
 # Version must be valid form for StrictVersion <d>.<d>.<d> for the sort
 # to work properly and find the latest version.  More details at:
 # http://epydoc.sourceforge.net/stdlib/distutils.version.StrictVersion-class.html
-VERSION = '0.9.1'
+VERSION = '3.0.0'
 
 def warn_for_package_update(current_version):
     """Check for updated version of msgen and warn if a newer version is available"""
-    pypiRoot = "https://pypi.python.org"
+    pypiRoot = "https://pypi.org"
     connect_timeout = 0.1
     read_timeout = 0.1
     url = pypiRoot
@@ -35,20 +34,20 @@ def warn_for_package_update(current_version):
         versions = json["releases"].keys()
         if len(versions) == 0:
             return
-        versions.sort(key=StrictVersion, reverse=True)
+        versions = sorted(versions, key=StrictVersion, reverse=True)
         if current_version < versions[0]:
-            print "\n*** INFO ***" \
+            print("\n*** INFO ***" \
                   "\nA newer version of msgen is available.  Please consider upgrading to v{0:s}." \
                   "\n    To upgrade, run: pip install --upgrade msgen" \
-                  "\n".format(versions[0])
+                  "\n".format(versions[0]))
     except ValueError:
-        print "\n*** INFO ***" \
+        print("\n*** INFO ***" \
               "\nInvalid JSON received by {0} when checking for updates." \
-              "\n".format(url)
+              "\n".format(url))
     except (requests.Timeout, requests.ConnectionError, requests.exceptions.RequestException):
-        print "\n*** INFO ***" \
+        print("\n*** INFO ***" \
               "\nUnable to connect to {0} to check for updates." \
-              "\n".format(pypiRoot)
+              "\n".format(pypiRoot))
 
 def _command(func, args):
     """Perform a command using command-line arguments
@@ -90,8 +89,8 @@ def main():
     """Main execution flow"""
 
     # Display logon banner
-    print "Microsoft Genomics command-line client v{0}".format(VERSION)
-    print "Copyright (c) {0} Microsoft. All rights reserved.".format(datetime.utcnow().year)
+    print("Microsoft Genomics command-line client v{0}".format(VERSION))
+    print("Copyright (c) {0} Microsoft. All rights reserved.".format(datetime.utcnow().year))
 
     warn_for_package_update(VERSION)
 

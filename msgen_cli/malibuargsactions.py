@@ -8,7 +8,7 @@ import os
 import re
 import string
 import sys
-from malibucommon import ODataArguments, ORDER_ASC, ORDER_DESC
+from . import malibucommon
 
 class MaxLengthValidator(argparse.Action):
     """String length validator"""
@@ -18,7 +18,7 @@ class MaxLengthValidator(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         if values is not None and len(values) > self.max_length:
-            print "Maximum length for the '{0}' field is {1}. Your value will be truncated.".format(self.dest, self.max_length)
+            print("Maximum length for the '{0}' field is {1}. Your value will be truncated.".format(self.dest, self.max_length))
             values = values[:self.max_length]
         setattr(namespace, self.dest, values)
 
@@ -44,9 +44,9 @@ class RangeValidator(argparse.Action):
         if ":" not in value:
             single = int(value)
             if single < 0:
-                setattr(namespace, self.dest, ODataArguments(orderby=ORDER_DESC, skip=abs(single)-1, top=1))
+                setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_DESC, skip=abs(single)-1, top=1))
             else:
-                setattr(namespace, self.dest, ODataArguments(orderby=ORDER_ASC, skip=single, top=1))
+                setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_ASC, skip=single, top=1))
             return
 
         start, stop = [s.strip() for s in value.split(":", 1)]
@@ -59,24 +59,24 @@ class RangeValidator(argparse.Action):
 
         # start and stop cannot both be None here, this would raise a parser error above
         if start is None and stop < 0:
-            setattr(namespace, self.dest, ODataArguments(orderby=ORDER_DESC, skip=abs(stop), top=None))
+            setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_DESC, skip=abs(stop), top=None))
             return
         elif start is None and stop >= 0:
-            setattr(namespace, self.dest, ODataArguments(orderby=ORDER_ASC, skip=None, top=stop))
+            setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_ASC, skip=None, top=stop))
             return
         elif start < 0 and stop is None:
-            setattr(namespace, self.dest, ODataArguments(orderby=ORDER_DESC, skip=None, top=abs(start)))
+            setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_DESC, skip=None, top=abs(start)))
             return
         elif start >= 0 and stop is None:
-            setattr(namespace, self.dest, ODataArguments(orderby=ORDER_ASC, skip=start, top=None))
+            setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_ASC, skip=start, top=None))
             return
         elif start >= 0 and stop >= 0:
             # OK to have negative $top, our controller returns [] in that case, like in Python
-            setattr(namespace, self.dest, ODataArguments(orderby=ORDER_ASC, skip=start, top=max(0, stop-start)))
+            setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_ASC, skip=start, top=max(0, stop-start)))
             return
         elif start < 0 and stop < 0:
             # OK to have negative $top, our controller returns [] in that case, like in Python
-            setattr(namespace, self.dest, ODataArguments(orderby=ORDER_DESC, skip=abs(stop), top=max(0, abs(start)-abs(stop))))
+            setattr(namespace, self.dest, malibucommon.ODataArguments(orderby=malibucommon.ORDER_DESC, skip=abs(stop), top=max(0, abs(start)-abs(stop))))
             return
         else:
             raise argparse.ArgumentError(self, "when a range is specified, its ends should be both non-negative or both negative")
@@ -86,7 +86,7 @@ class ConfigFileReader(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, values)
         if not values or not os.path.isfile(values):
-            print >> sys.stderr, "Path '{0}' is not a file or doesn't exist, not reading settings from it".format(values)
+            print("Path '{0}' is not a file or doesn't exist, not reading settings from it".format(values), file=sys.stderr)
         else:
             expected_settings, expected_list_settings = self.__get_expected_config_setting_names(parser)
             with open(values) as f:
@@ -256,7 +256,7 @@ def output_container_validator(value):
     """Output container name validator"""
     return _output_container_name_validator(value)
 
-ALLOWED_READ_GROUP_CHARACTERS = set(string.letters + string.digits + string.punctuation + " \t") - set("=;")
+ALLOWED_READ_GROUP_CHARACTERS = set(string.ascii_letters + string.digits + string.punctuation + " \t") - set("=;")
 MAX_READ_GROUP_LENGTH = 1000
 
 def read_group_validator(value):
@@ -357,7 +357,7 @@ def validate_namespace(parser, namespace):
         raise parser.error("no inputs provided")
 
     if (namespace.emit_ref_confidence == "gvcf") and namespace.bgzip_output is False:
-        print "Warning: \"g.vcf\" output will not be compressed by bgzip because argument '-bz' or '--bgzip-output' was set to false"
+        print("Warning: \"g.vcf\" output will not be compressed by bgzip because argument '-bz' or '--bgzip-output' was set to false")
 
     # 1. Make sure we don't mix BAM/SAM and FASTQ files in a single submission.
     bam_sam = any(BAM_SAM_FILE.match(b) != None for b in all_blob_names)
@@ -379,6 +379,6 @@ def validate_namespace(parser, namespace):
             if first == second:
                 raise parser.error("the same file is used at the same position in both -b1/--input-blob-name-1 and -b2/--input-blob-name-2: [{0}]".format(first))
             if not differ_in_at_most_one(first, second) and not namespace.suppress_fastq_validation:
-                print >> sys.stderr, _name_mismatch_error.format(first, second)
+                print(_name_mismatch_error.format(first, second), file=sys.stderr)
     
     return namespace

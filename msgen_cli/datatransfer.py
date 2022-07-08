@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 """Data transfer functionality"""
-import malibuazure
+from . import malibuazure
 
 class AzureDataTransfer(object):
 

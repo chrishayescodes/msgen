@@ -7,16 +7,14 @@ import sys
 import time
 from collections import OrderedDict
 from datetime import datetime
-from itertools import izip_longest
+from itertools import zip_longest as izip_longest
 try:
     import requests
 except ImportError:
-    print "You need to install the 'requests' library. Try: pip install requests"
+    print("You need to install the 'requests' library. Try: pip install requests")
     sys.exit(code=1)
 
-import malibucommon
-import malibuservice
-import datatransfer
+from . import malibucommon, malibuservice, datatransfer
 
 class WorkflowExecutor(object):
     """ Main class for working with workflows """
@@ -83,7 +81,7 @@ class WorkflowExecutor(object):
             if not short:
                 msg += "\n\tProcess: {0}\n\tDescription: {1}".format(workflow.get("Process"), workflow.get("Description"))
 
-        print msg
+        print(msg)
         sys.stdout.flush()
 
     def display_error(self, exception, response_code, status_code):
@@ -93,9 +91,9 @@ class WorkflowExecutor(object):
             workflow_status = self.exit_status_by_workflow_status[status_code][0]
 
         message = "Exception: {0}, Response Code {1}, Status {2} "
-        print message.format(str(exception),
+        print(message.format(str(exception),
                              str(response_code),
-                             workflow_status)
+                             workflow_status))
     @classmethod
     def workflow_wall_clock_endtime(cls, end_date, created_date_object):
         """ Calculates the end time of a workflow item """
@@ -151,10 +149,10 @@ class WorkflowExecutor(object):
             return self.args_output.workflow_id
 
         except requests.exceptions.ConnectionError as exc:
-            print ("Could not connect to Malibu REST API."
+            print("Could not connect to Malibu REST API."
                    "  Please review the api_url_base setting in config.txt,"
                    " and check your network settings.")
-            print "Exception: {0}".format(str(exc))
+            print("Exception: {0}".format(str(exc)))
             self.set_exit_code(2)
 
     def construct_optional_args(self):
@@ -281,7 +279,7 @@ class WorkflowExecutor(object):
         out_file.write("\nWorkflow List\n-------------\nTotal Count  : {0}\n\n".format(count))
         for workflow in workflow_data:
             workflow = self.transform_workflow_for_output(workflow)
-            out_file.write("\n".join("{0:<15} : {1}".format(k, v) for (k, v) in workflow.iteritems()) + "\n\n")
+            out_file.write("\n".join("{0:<15} : {1}".format(k, v) for (k, v) in workflow.items()) + "\n\n")
 
     def transform_workflow_for_output(self, workflow):
         """Transform workflow fields for output"""
@@ -302,7 +300,7 @@ class WorkflowExecutor(object):
 
         raw_bases = self.get_str_value(workflow, "BasesProcessed")
         if raw_bases:
-            number_bases = long(raw_bases)
+            number_bases = int(raw_bases)
             gbases = number_bases // 1000000000
             processed_bases = "{0:,d} ({1:,d} GBase)".format(number_bases, gbases)
         else:

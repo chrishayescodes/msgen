@@ -20,7 +20,7 @@ class TestMsgen(unittest.TestCase):
             warn_for_package_update("0.7.0")
             result = True
         except Exception as exception:
-            print str(exception)
+            print(str(exception))
 
         # restore stdout
         sys.stdout = old_stdout
@@ -42,7 +42,7 @@ class TestMsgen(unittest.TestCase):
             warn_for_package_update("10.0.0")
             result = True
         except Exception as exception:
-            print str(exception)
+            print(str(exception))
 
         # restore stdout
         sys.stdout = old_stdout

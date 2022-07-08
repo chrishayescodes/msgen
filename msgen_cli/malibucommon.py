@@ -17,7 +17,7 @@ def pause_and_display(message, debug_mode=True):
     """Pause and show a message so it can be read by a human"""
     if debug_mode:
         for second in range(0, EXIT_MESSAGE_VIEWTIME):
-            print message + str(EXIT_MESSAGE_VIEWTIME-second) + " second(s)."
+            print(message + str(EXIT_MESSAGE_VIEWTIME-second) + " second(s).")
             sleep(1)
 
 def get_api_url_from_base(base_url):
